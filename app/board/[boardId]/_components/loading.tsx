@@ -1,3 +1,4 @@
+"use client";
 import { Loader } from "lucide-react";
 import Info from "./info";
 import Participants from "./participants";
