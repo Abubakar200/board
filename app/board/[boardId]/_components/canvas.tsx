@@ -3,27 +3,65 @@ import { useCallback, useState } from "react";
 import Info from "./info";
 import Participants from "./participants";
 import ToolBar from "./toolbar";
-import { Camera, CanvasMode, CanvasState } from "@/types/canvas";
+import {nanoid} from "nanoid"
+import {
+  Camera,
+  CanvasMode,
+  CanvasState,
+  Colors,
+  LayerType,
+  Point,
+} from "@/types/canvas";
 import {
   useCanRedo,
   useCanUndo,
   useHistory,
   useMutation,
+  useStorage,
 } from "@/liveblocks.config";
 import { CursorPresence } from "./cursor-presence";
 import { pointerEventToCanvasPoint } from "@/lib/utils";
 interface CanvasProps {
   boardId: string;
 }
+
+const MAX_LAYER = 100;
 const Canvas = ({ boardId }: CanvasProps) => {
+  const layerIds = useStorage((root) => root.layerIds);
   const [canvasState, setCanvasState] = useState<CanvasState>({
     mode: CanvasMode.None,
   });
   const [camera, setCamera] = useState<Camera>({ x: 0, y: 0 });
+  const [useLateColor, setUseLastColor] = useState<Colors>({
+    r: 0,
+    g: 0,
+    b: 0,
+  });
 
   const history = useHistory();
   const canRedo = useCanRedo();
   const canUndo = useCanUndo();
+
+  const insertLayer = useMutation(
+    (
+      { setMyPresence, storage },
+      layerType:
+        | LayerType.Rectangle
+        | LayerType.Ellipse
+        | LayerType.Text
+        | LayerType.Note,
+      position: Point
+    ) => {
+      const liveLayers = storage.get("layers");
+      if (liveLayers.size >= MAX_LAYER) {
+        return;
+      }
+
+      const liveLayerId = storage.get("layerIds");
+      const layerId = nanoid()
+    },
+    []
+  );
 
   const onPointerMover = useMutation(
     ({ setMyPresence }, e: React.PointerEvent) => {
@@ -34,6 +72,10 @@ const Canvas = ({ boardId }: CanvasProps) => {
     },
     []
   );
+
+  const onPointerLeave = useMutation(({ setMyPresence }) => {
+    setMyPresence({ cursor: null });
+  }, []);
   const onWheel = useCallback((e: React.WheelEvent) => {
     setCamera((camera) => ({
       x: camera.x - e.deltaX,
@@ -56,8 +98,9 @@ const Canvas = ({ boardId }: CanvasProps) => {
         className="h-[100vh] w-[100vw]"
         onWheel={onWheel}
         onPointerMove={onPointerMover}
+        onPointerLeave={onPointerLeave}
       >
-        <g>
+        <g style={{ transform: `translate(${camera.x}px, ${camera.y}px)` }}>
           <CursorPresence />
         </g>
       </svg>
