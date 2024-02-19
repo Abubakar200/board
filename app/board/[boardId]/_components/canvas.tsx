@@ -22,6 +22,7 @@ import {
 import { CursorPresence } from "./cursor-presence";
 import { pointerEventToCanvasPoint } from "@/lib/utils";
 import { LiveObject } from "@liveblocks/client";
+import LayerPreview from "./layer-preview";
 interface CanvasProps {
   boardId: string;
 }
@@ -93,10 +94,10 @@ const Canvas = ({ boardId }: CanvasProps) => {
 
   const onPointerUp = useMutation(({}, e) => {
     const point = pointerEventToCanvasPoint(e, camera);
-    console.log({
-      point,
-      mode: canvasState.mode
-    })
+    // console.log({
+    //   point,
+    //   mode: canvasState.mode
+    // })
     if(canvasState.mode === CanvasMode.Inserting){
       insertLayer(canvasState.layerType, point)
     }else{
@@ -134,6 +135,14 @@ const Canvas = ({ boardId }: CanvasProps) => {
         onPointerUp={onPointerUp}
       >
         <g style={{ transform: `translate(${camera.x}px, ${camera.y}px)` }}>
+        {layerIds.map((layerId) => (
+          <LayerPreview
+          key={layerId}
+          id={layerId}
+          onLayerPointerDown={() => {}}
+          selectionColor="#000"
+          />
+        ))}
           <CursorPresence />
         </g>
       </svg>
