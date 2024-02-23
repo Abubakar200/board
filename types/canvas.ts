@@ -26,6 +26,7 @@ export type EllipseLayer = {
   fill: Colors;
   value?: string;
 };
+
 export type TextLayer = {
   type: LayerType.Text;
   width: number;
@@ -78,21 +79,9 @@ export type CanvasState =
       mode: CanvasMode.None;
     }
   | {
-      mode: CanvasMode.Pressing;
-      origin: Point;
-    }
-  | {
       mode: CanvasMode.SelectionNet;
       origin: Point;
       current?: Point;
-    }
-  | {
-      mode: CanvasMode.Pencil;
-    }
-  | {
-      mode: CanvasMode.Resizing;
-      initialBounds: XYWH;
-      Corner: Side;
     }
   | {
       mode: CanvasMode.Translating;
@@ -102,9 +91,21 @@ export type CanvasState =
       mode: CanvasMode.Inserting;
       layerType:
         | LayerType.Ellipse
-        | LayerType.Note
         | LayerType.Rectangle
-        | LayerType.Text;
+        | LayerType.Text
+        | LayerType.Note;
+    }
+  | {
+      mode: CanvasMode.Pencil;
+    }
+  | {
+      mode: CanvasMode.Pressing;
+      origin: Point;
+    }
+  | {
+      mode: CanvasMode.Resizing;
+      initialBounds: XYWH;
+      corner: Side;
     };
 
 export enum CanvasMode {
@@ -117,9 +118,4 @@ export enum CanvasMode {
   Pencil,
 }
 
-export type Layer =
-  | RectangleLayer
-  | TextLayer
-  | EllipseLayer
-  | NoteLayer
-  | NoteLayer;
+export type Layer = RectangleLayer | EllipseLayer | PathLayer | TextLayer | NoteLayer
